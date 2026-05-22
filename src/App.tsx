@@ -24,10 +24,10 @@ function App() {
         </div>
 
         <nav className="navbar">
-          <a href="#início">Início </a>
-          <a href="#sobre mim">Sobre Mim </a>
-          <a href="#projetos">Projetos </a>
-          <a href="#hard skills">Hard Skills </a>
+          <a href="#inicio">Início</a>
+          <a href="#sobre">Sobre Mim</a>
+          <a href="#projetos">Projetos</a>
+          <a href="#hard-skills">Hard Skills</a>
         </nav>
 
         <a href="#contato" className="contact-button">
@@ -36,14 +36,17 @@ function App() {
 
       </header>
       <main>
-        <section className="hero" id="início">
-          <div>
+        <section className="hero" id="inicio">
+          <div className="hero-content">
             <h1>Quem sou eu?</h1>
 
-            <h2>Desenvolvedor Full Stack com foco em em testes e automação</h2>
+            <h2>Desenvolvedor Full Stack com foco em testes e automação</h2>
 
-            <p>Trago soluções eficientes, elegantes e tecnológicas.<br /> 
-              Construo softwares com foco em eficiência, usabilidade e performance.</p>
+            <p>
+              Trago soluções eficientes, elegantes e tecnológicas.<br />
+              Construo softwares com foco em eficiência, usabilidade e performance.
+            </p>
+
             <div className="hero-actions">
               <a
                 href="/curriculo.pdf"
@@ -54,7 +57,7 @@ function App() {
               </a>
 
               <a
-                href="https://github.com/seu-usuario"
+                href="https://github.com/arthurp1910"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="GitHub"
@@ -64,7 +67,7 @@ function App() {
               </a>
 
               <a
-                href="https://www.linkedin.com/in/seu-usuario"
+                href="https://www.linkedin.com/in/arthur-lemes-58b69926a"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="LinkedIn"
@@ -74,13 +77,14 @@ function App() {
               </a>
             </div>
           </div>
-          <div>
+
+          <div className="hero-image">
             <img src={FotoLado} alt="Foto de Arthur Lemes" />
           </div>
         </section>
       </main>
 
-      <section className="about"  id = "sobre mim">
+      <section className="about"  id = "sobre">
         <div className="about-image">
           <img src={FotoFrente} alt="Foto de Arthur Lemes" />
         </div> 
@@ -108,46 +112,51 @@ function App() {
         </div>
       </section>
 
-      <section className="projects" id = "projetos">
+      <section className="projects" id="projetos">
         <h2>Projetos</h2>
+
         <div className="project-list">
           <article className="project-card">
             <img src={Ecomotion} alt="Projeto Ecomotion" />
+
             <div className="project-content">
-              <h3>Ecomotion</h3>
-              <p> Automação de atendimento e agendamento para barbearias que trabalham por agendamento.
-          O bot faz o atendimento, verifica horários disponíveis, agenda o serviço e notifica
-          o cliente antes do horário agendado.</p>
+              <h3>ECOMOTION</h3>
+
+              <p>
+                Automação de atendimento e agendamento para barbearias que trabalham por agendamento.
+                O bot faz o atendimento, verifica horários disponíveis, agenda o serviço e notifica
+                o cliente antes do horário agendado.
+              </p>
+            </div>
+          </article>
+
+          <article className="project-card">
+            <img src={Ecomotion} alt="Imagem do projeto Ecomotion" />
+
+            <div className="project-content">
+              <h3>ECOMOTION</h3>
+
+              <p>
+                Automação de atendimento e agendamento para barbearias que trabalham por agendamento.
+              </p>
+            </div>
+          </article>
+
+          <article className="project-card">
+            <img src={Ecomotion} alt="Imagem do projeto Ecomotion" />
+
+            <div className="project-content">
+              <h3>ECOMOTION</h3>
+
+              <p>
+                Automação de atendimento e agendamento para barbearias que trabalham por agendamento.
+              </p>
             </div>
           </article>
         </div>
-
-        <article className="project-card">
-        <img src={Ecomotion} alt="Imagem do projeto Ecomotion" />
-
-        <div className="project-content">
-          <h3>ECOMOTION</h3>
-
-          <p>
-            Automação de atendimento e agendamento para barbearias que trabalham por agendamento.
-          </p>
-        </div>
-      </article>
-
-      <article className="project-card">
-        <img src={Ecomotion} alt="Imagem do projeto Ecomotion" />
-
-        <div className="project-content">
-          <h3>ECOMOTION</h3>
-
-          <p>
-            Automação de atendimento e agendamento para barbearias que trabalham por agendamento.
-          </p>
-        </div>
-      </article>
       </section>
 
-      <section className="skills" id = "hard skills">
+      <section className="skills" id = "hard-skills">
         <h2>Hard Skills</h2>
 
         <div className="skills-carousel">
