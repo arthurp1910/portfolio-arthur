@@ -79,11 +79,23 @@ const skillItems = [
 function App() {
   const [activeSection, setActiveSection] = useState('inicio')
   const [selectedSkill, setSelectedSkill] = useState(skillItems[0])
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [contactStatus, setContactStatus] = useState<
     'idle' | 'sending' | 'success' | 'error'
   >('idle')
+  const [contactMessage, setContactMessage] = useState('')
+  const contactEmail =
+    import.meta.env.VITE_CONTACT_EMAIL || 'arthur1910p@gmail.com'
+  const contactFormEndpoint = import.meta.env.VITE_CONTACT_FORM_ENDPOINT || ''
+  const emailJsServiceId = import.meta.env.VITE_EMAILJS_SERVICE_ID || ''
+  const emailJsTemplateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || ''
+  const emailJsPublicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || ''
   const ecoMotionLink =
     'https://www.figma.com/design/UJO02k1PDdFGWRQxEg0YnR/EcoMotion?t=rw3IsmgRkB9WUd7X-1'
+
+  const closeMenu = () => {
+    setIsMenuOpen(false)
+  }
 
   const scrollSectionToCenter = (sectionId: string) => {
     const section = document.getElementById(sectionId)
@@ -104,34 +116,92 @@ function App() {
   const handleContactSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setContactStatus('sending')
+    setContactMessage('')
 
     const form = event.currentTarget
     const formData = new FormData(form)
+    const name = String(formData.get('name') || '').trim()
+    const email = String(formData.get('email') || '').trim()
+    const subject = String(formData.get('subject') || '').trim()
+    const message = String(formData.get('message') || '').trim()
 
-    formData.append('_subject', 'Nova mensagem pelo portfolio')
-    formData.append('_template', 'table')
-    formData.append('_captcha', 'false')
+    formData.set('name', name)
+    formData.set('email', email)
+    formData.set('subject', subject)
+    formData.set('message', message)
+    formData.set('_replyto', email)
+    formData.set('_subject', subject || 'Nova mensagem pelo portfolio')
+    formData.set('_template', 'table')
+    formData.set('_captcha', 'false')
+
+    if (!name || !email || !subject || !message) {
+      setContactStatus('error')
+      setContactMessage('Preencha todos os campos antes de enviar.')
+      return
+    }
 
     try {
-      const response = await fetch(
-        'https://formsubmit.co/ajax/arthur1910p@gmail.com',
-        {
+      if (emailJsServiceId && emailJsTemplateId && emailJsPublicKey) {
+        const response = await fetch(
+          'https://api.emailjs.com/api/v1.0/email/send',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              service_id: emailJsServiceId,
+              template_id: emailJsTemplateId,
+              user_id: emailJsPublicKey,
+              template_params: {
+                from_name: name,
+                from_email: email,
+                reply_to: email,
+                to_email: contactEmail,
+                subject,
+                message,
+              },
+            }),
+          }
+        )
+
+        if (!response.ok) {
+          throw new Error('Erro ao enviar pelo EmailJS')
+        }
+      } else if (contactFormEndpoint) {
+        const response = await fetch(contactFormEndpoint, {
           method: 'POST',
           headers: {
             Accept: 'application/json',
           },
           body: formData,
-        }
-      )
+        })
 
-      if (!response.ok) {
-        throw new Error('Erro ao enviar mensagem')
+        if (!response.ok) {
+          throw new Error('Erro ao enviar pelo endpoint configurado')
+        }
+      } else {
+        const mailtoSubject = encodeURIComponent(subject)
+        const mailtoBody = encodeURIComponent(
+          `Nome: ${name}\nE-mail: ${email}\n\n${message}`
+        )
+
+        window.location.href = `mailto:${contactEmail}?subject=${mailtoSubject}&body=${mailtoBody}`
+        setContactStatus('error')
+        setContactMessage(
+          'Envio automático não configurado. Abri um rascunho no seu app de e-mail.'
+        )
+        return
       }
 
       form.reset()
       setContactStatus('success')
+      setContactMessage('Mensagem enviada com sucesso. Obrigado pelo contato!')
     } catch {
       setContactStatus('error')
+      setContactMessage(
+        'Não foi possível enviar agora. Verifique a configuração do serviço de e-mail.'
+      )
     }
   }
 
@@ -165,6 +235,14 @@ function App() {
     }
   }, [])
 
+  useEffect(() => {
+    document.body.classList.toggle('menu-open', isMenuOpen)
+
+    return () => {
+      document.body.classList.remove('menu-open')
+    }
+  }, [isMenuOpen])
+
   return (
     <>
       <header className="header">
@@ -174,10 +252,14 @@ function App() {
           Lemes
         </div>
 
-        <nav className="navbar">
+        <nav
+          id="primary-navigation"
+          className={`navbar ${isMenuOpen ? 'open' : ''}`}
+        >
           <a
             href="#inicio"
             className={activeSection === 'inicio' ? 'active' : ''}
+            onClick={closeMenu}
           >
             Início
           </a>
@@ -187,6 +269,7 @@ function App() {
             className={activeSection === 'sobre' ? 'active' : ''}
             onClick={(event) => {
               event.preventDefault()
+              closeMenu()
               scrollSectionToCenter('sobre')
             }}
           >
@@ -196,6 +279,7 @@ function App() {
           <a
             href="#projetos"
             className={activeSection === 'projetos' ? 'active' : ''}
+            onClick={closeMenu}
           >
             Projetos
           </a>
@@ -203,14 +287,28 @@ function App() {
           <a
             href="#hard-skills"
             className={activeSection === 'hard-skills' ? 'active' : ''}
+            onClick={closeMenu}
           >
             Hard Skills
           </a>
         </nav>
 
-        <a href="#contato" className="contact-button">
+        <a href="#contato" className="contact-button" onClick={closeMenu}>
           Contato
         </a>
+
+        <button
+          type="button"
+          className="menu-toggle"
+          aria-label={isMenuOpen ? 'Fechar menu' : 'Abrir menu'}
+          aria-expanded={isMenuOpen}
+          aria-controls="primary-navigation"
+          onClick={() => setIsMenuOpen((current) => !current)}
+        >
+          <span />
+          <span />
+          <span />
+        </button>
       </header>
 
       <main>
@@ -409,6 +507,21 @@ function App() {
             </div>
 
             <div className="form-group">
+              <label htmlFor="subject">
+                Assunto
+                <br />
+              </label>
+
+              <input
+                type="text"
+                id="subject"
+                name="subject"
+                placeholder="Sobre o que deseja falar?"
+                required
+              />
+            </div>
+
+            <div className="form-group">
               <label htmlFor="message">
                 Mensagem
                 <br />
@@ -428,10 +541,7 @@ function App() {
             </button>
 
             <p className={`contact-feedback ${contactStatus}`} aria-live="polite">
-              {contactStatus === 'success' &&
-                'Mensagem enviada com sucesso. Obrigado pelo contato!'}
-              {contactStatus === 'error' &&
-                'Não foi possível enviar agora. Tente novamente em instantes.'}
+              {contactMessage}
             </p>
           </form>
         </section>
@@ -469,7 +579,7 @@ function App() {
             </a>
 
             <a
-              href="https://mail.google.com/mail/?view=cm&fs=1&to=arthur1910p@gmail.com"
+              href={`mailto:${contactEmail}`}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="E-mail"
